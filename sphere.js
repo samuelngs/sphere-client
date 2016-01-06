@@ -8,6 +8,6 @@
         Module: {}
     };
 
-    global.App.Version = '0.1.0';
+    global.Sphere.Version = '0.1.0';
 
 }.call(this || window));
