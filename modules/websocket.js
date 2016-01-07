@@ -31,6 +31,7 @@
         var ws  = this.get('ws'),
             url = this.get('url');
         if (typeof url === 'string' && !this.get('connected')) {
+            this._cleanup();
             this.set('ws', new global.WebSocket(url));
             this._listen();
         }
@@ -59,16 +60,22 @@
     };
 
     WebSocket.prototype._onopen = function() {
-        console.log('open');
         this.set('connected', true);
+        this.emit('open');
     };
 
     WebSocket.prototype._onclose = function() {
-        console.log('close');
+        this.set('connected', false);
+        this.emit('close');
     };
 
     WebSocket.prototype._onmessage = function(msg) {
-        console.log('message:', msg);
+        // creates packet
+        var packet = new Sphere.Module.Packet();
+        // parse data and return packet
+        packet.parse(msg);
+        // receive event
+        this.emit('message', packet);
     };
 
     Sphere.Module.WebSocket = WebSocket;
