@@ -19,22 +19,27 @@
 
     Packet.prototype.json = function(str) {
         var obj;
-        if (typeof str === 'string') {
-            try {
-                obj = JSON.parse(str);
-            } catch(e) {
-                obj = str;
-            }
-            return obj;
+        switch(typeof str) {
+            case 'string':
+                try {
+                    obj = JSON.parse(str);
+                } catch(e) {
+                    obj = str;
+                }
+                break;
+            default:
+                obj = JSON.stringify(this.attributes);
+                break;
         }
-        obj = JSON.stringify(this.attributes);
         return obj;
     };
 
     Packet.prototype.parse = function(str) {
         var obj = this.json(str);
-        if (typeof obj === 'object') {
-            obj.message = this.json(obj);
+        if (typeof obj === 'object' && typeof obj.message === 'string') {
+            var message = new Sphere.Module.Message();
+            message.parse(obj.message);
+            obj.message = message;
         }
         for (prop in obj) {
             this.set(prop, obj[prop]);
