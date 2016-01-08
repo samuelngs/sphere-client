@@ -78,6 +78,20 @@
         this.emit('message', packet);
     };
 
+    WebSocket.prototype.send = function(type, msg) {
+        var packet = new Sphere.Module.Packet();
+        this.get('ws').send(packet.json());
+    };
+
+    WebSocket.prototype.subscribe = function() {
+    };
+
+    WebSocket.prototype.unsubscribe = function() {
+    };
+
+    WebSocket.prototype.channel = function() {
+    };
+
     Sphere.Module.WebSocket = WebSocket;
 
 }.call(this || window));
