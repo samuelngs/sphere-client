@@ -84,8 +84,9 @@
         if (!(packet instanceof Sphere.Module.Packet)) {
             return this.log('packet is invalid');
         }
+        packet.set('cid', this.get('cid'));
         this.get('ws').send(packet.json());
-        this.get('cid').append(1);
+        this.append('cid', 1);
     };
 
     WebSocket.prototype.subscribe = function(namespace, room, callback) {
@@ -121,7 +122,7 @@
         } else {
             if (autoCreate === true) {
                 channel = new Sphere.Module.Channel({
-                    channel   : this,
+                    client    : this,
                     namespace : namespace,
                     room      : room
                 });
