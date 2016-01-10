@@ -22,12 +22,10 @@
         if (!this.get('client')) {
             return this.log('could not find websocket client');
         }
-        if (typeof namespace !== 'string' || typeof room !== 'string') {
+        if (typeof this.get('namespace') !== 'string' || typeof this.get('room') !== 'string') {
             return this.log('could not find channel namespace and room name');
         }
-        var ws = this
-            .get('client')
-            .get('ws');
+        var ws = this.get('client');
         var packet = new Sphere.Module.Packet({
             type      : Sphere.Module.Packet.Type.Subscribe,
             namespace : this.get('namespace'),
@@ -46,12 +44,10 @@
         if (!this.get('client')) {
             return this.log('could not find websocket client');
         }
-        if (typeof namespace !== 'string' || typeof room !== 'string') {
+        if (typeof this.get('namespace') !== 'string' || typeof this.get('room') !== 'string') {
             return this.log('could not find channel namespace and room name');
         }
-        var ws = this
-            .get('client')
-            .get('ws');
+        var ws = this.get('client');
         var packet = new Sphere.Module.Packet({
             type      : Sphere.Module.Packet.Type.Unsubscribe,
             namespace : this.get('namespace'),
@@ -64,6 +60,10 @@
             }.bind(this)
         });
         ws.send(packet);
+    };
+
+    Channel.prototype.subscribed = function() {
+        return this.get('subscribed') === true;
     };
 
     Sphere.Module.Channel = Channel;
