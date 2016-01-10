@@ -65,11 +65,19 @@
     WebSocket.prototype._onopen = function() {
         this.set('connected', true);
         this.emit('open');
+        // resubscribe all channels when connection is opened
+        this.channels(false).map(function(channel) {
+            channel.subscribe();
+        });
     };
 
     WebSocket.prototype._onclose = function() {
         this.set('connected', false);
         this.emit('close');
+        // unsubscribe all channels when disconnection
+        this.channels(false).map(function(channel) {
+            channel.set('subscribed', false);
+        });
     };
 
     WebSocket.prototype._onmessage = function(msg) {
@@ -77,6 +85,13 @@
         var packet = new Sphere.Module.Packet();
         // parse data and return packet
         packet.parse(msg.data || {});
+        // channel events
+        if (packet.get('type') === Sphere.Module.Packet.Type.Channel && packet.get('namespace') === 'string' && packet.get('room') === 'string') {
+            var channel = this.channel(namespace, room, false);
+            if (channel && channel.subscribed()) {
+                channel.emit(message, packet);
+            }
+        }
         // callback
         if (packet.get('reply') === true && typeof this.get('callbacks')[packet.cid] === 'function') {
             this.get('callbacks')[packet.cid].call(undefined, packet);
