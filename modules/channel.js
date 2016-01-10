@@ -37,7 +37,6 @@
                 callback.call(channel, response);
                 channel.emit('subscribed');
             });
-            ws.callback(packet);
         }
         this.emit('subscribe');
         ws.send(packet);
@@ -62,7 +61,6 @@
                 callback.call(channel, response);
                 channel.emit('unsubscribed');
             });
-            ws.callback(packet);
         }
         this.emit('unsubscribe');
         ws.send(packet);
@@ -70,6 +68,32 @@
 
     Channel.prototype.subscribed = function() {
         return this.get('subscribed') === true;
+    };
+
+    Channel.prototype.send = function(event, data, callback) {
+        if (!this.subscribed()) {
+            return this.log('channel is not subscribed');
+        }
+        if (typeof event !== 'string') {
+            return this.log('channel event is missing');
+        }
+        var packet = new Sphere.Module.Packet({
+            type      : Sphere.Module.Packet.Type.Channel,
+            namespace : this.get('namespace'),
+            room      : this.get('room')
+        });
+        var message = new Sphere.Module.Message({
+            event     : event,
+            data      : data
+        });
+        packet.set('message', message);
+        if (typeof callback === 'function') {
+            packet.set('callback', function(response) {
+                callback.call(channel, response);
+                channel.emit('message', response);
+            });
+        }
+        ws.send(packet);
     };
 
     Sphere.Module.Channel = Channel;
