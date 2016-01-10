@@ -131,15 +131,20 @@
         return channel;
     };
 
-    WebSocket.prototype.channels = function() {
+    WebSocket.prototype.channels = function(onlySubscribed) {
         var channels = [];
         var namespaces = Object.keys(this.get('channels'));
+        if (typeof onlySubscribed !== 'boolean') {
+            onlySubscribed = false;
+        }
         for (var i = 0; i < namespaces.length; i++) {
             var namespace = namespaces[i],
                 rooms     = Object.keys(namespace);
             for (var j = 0; j < rooms.length; j++) {
                 var channel = rooms[j];
-                channels.push(channel);
+                if ((onlySubscribed && channel.subscribed()) || !onlySubscribed) {
+                    channels.push(channel);
+                }
             }
         }
         return channels;
