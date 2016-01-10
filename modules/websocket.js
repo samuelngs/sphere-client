@@ -90,6 +90,9 @@
             return this.log('packet is invalid');
         }
         packet.set('cid', this.get('cid'));
+        if (typeof packet.get('callback') === 'function') {
+            ws.callback(packet);
+        }
         this.get('ws').send(packet.json());
         this.append('cid', 1);
     };
