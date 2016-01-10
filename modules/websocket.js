@@ -9,6 +9,7 @@
         this.set('channels', {});
         this.set('callbacks', {});
         // state
+        this.set('cid', 0);
         this.set('listened', false);
         this.set('connected', false);
         // events
@@ -43,6 +44,7 @@
             ws.removeEventListener('open', this._onopen.bind(this));
             ws.removeEventListener('close', this._onclose.bind(this));
             ws.removeEventListener('message', this._onmessage.bind(this));
+            this.set('cid', 0);
             this.set('connected', false);
             this.set('listened', false);
             this.unset('ws');
@@ -78,18 +80,69 @@
         this.emit('message', packet);
     };
 
-    WebSocket.prototype.send = function(type, msg) {
-        var packet = new Sphere.Module.Packet();
+    WebSocket.prototype.send = function(packet) {
+        if (!(packet instanceof Sphere.Module.Packet)) {
+            return this.log('packet is invalid');
+        }
         this.get('ws').send(packet.json());
+        this.get('cid').append(1);
     };
 
-    WebSocket.prototype.subscribe = function() {
+    WebSocket.prototype.subscribe = function(namespace, room, callback) {
+        var channel = this.channel(namespace, room, true);
+        if (channel) {
+            channel.subscribe(callback);
+        }
     };
 
-    WebSocket.prototype.unsubscribe = function() {
+    WebSocket.prototype.unsubscribe = function(namespace, room, callback) {
+        var channel = this.channel(namespace, room, true);
+        if (channel) {
+            channel.unsubscribe(callback);
+        }
     };
 
-    WebSocket.prototype.channel = function() {
+    WebSocket.prototype.channel = function(namespace, room, autoCreate) {
+        var channel;
+        if (typeof autoCreate !== 'boolean') {
+            autoCreate = false;
+        }
+        if (typeof namespace !== 'string') {
+            return this.log('please provide the channel namespace');
+        }
+        if (typeof room !== 'string') {
+            return this.log('please provide the channel room name');
+        }
+        if (typeof this.get('channels')[namespace] !== 'object') {
+            this.get('channels')[namespace] = {};
+        }
+        if (typeof this.get('channels')[namespace][room] === 'object') {
+            channel = this.get('channels')[namespace][room];
+        } else {
+            if (autoCreate === true) {
+                channel = new Sphere.Module.Channel({
+                    channel   : this,
+                    namespace : namespace,
+                    room      : room
+                });
+                this.get('channels')[namespace][room] = channel;
+            }
+        }
+        return channel;
+    };
+
+    WebSocket.prototype.channels = function() {
+        var channels = [];
+        var namespaces = Object.keys(this.get('channels'));
+        for (var i = 0; i < namespaces.length; i++) {
+            var namespace = namespaces[i],
+                rooms     = Object.keys(namespace);
+            for (var j = 0; j < rooms.length; j++) {
+                var channel = rooms[j];
+                channels.push(channel);
+            }
+        }
+        return channels;
     };
 
     Sphere.Module.WebSocket = WebSocket;
