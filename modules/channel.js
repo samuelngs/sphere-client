@@ -19,6 +19,7 @@
     Channel.prototype.constructor = Channel;
 
     Channel.prototype.subscribe = function(callback) {
+        var channel = this;
         if (!this.get('client')) {
             return this.log('could not find websocket client');
         }
@@ -29,18 +30,21 @@
         var packet = new Sphere.Module.Packet({
             type      : Sphere.Module.Packet.Type.Subscribe,
             namespace : this.get('namespace'),
-            room      : this.get('room'),
-            callback  : function() {
-                if (typeof callback === 'function') {
-                    callback.call(this);
-                }
-                this.emit('subscribed');
-            }.bind(this)
+            room      : this.get('room')
         });
+        if (typeof callback === 'function') {
+            packet.set('callback', function(response) {
+                callback.call(channel, response);
+                channel.emit('subscribed');
+            });
+            ws.callback(packet);
+        }
+        this.emit('subscribe');
         ws.send(packet);
     };
 
     Channel.prototype.unsubscribe = function(callback) {
+        var channel = this;
         if (!this.get('client')) {
             return this.log('could not find websocket client');
         }
@@ -51,14 +55,16 @@
         var packet = new Sphere.Module.Packet({
             type      : Sphere.Module.Packet.Type.Unsubscribe,
             namespace : this.get('namespace'),
-            room      : this.get('room'),
-            callback  : function() {
-                if (typeof callback === 'function') {
-                    callback.call(this);
-                }
-                this.emit('subscribed');
-            }.bind(this)
+            room      : this.get('room')
         });
+        if (typeof callback === 'function') {
+            packet.set('callback', function(response) {
+                callback.call(channel, response);
+                channel.emit('unsubscribed');
+            });
+            ws.callback(packet);
+        }
+        this.emit('unsubscribe');
         ws.send(packet);
     };
 
