@@ -12,6 +12,7 @@ fi
 
 if ! which uglifyjs > /dev/null; then
     echo "uglify is not install, please install it with command 'npm install -g uglify'"
+    exit 1
 fi
 
 uglifyjs ./sphere.js \
