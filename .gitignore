@@ -28,3 +28,4 @@ node_modules
 
 # Compiled javascript files
 *.min.js
+*.min.js.map
