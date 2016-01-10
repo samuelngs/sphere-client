@@ -22,7 +22,7 @@
         if (!this.get('client')) {
             return this.log('could not find websocket client');
         }
-        if (typeof namespace !== 'string' || typeof room !== 'string) {
+        if (typeof namespace !== 'string' || typeof room !== 'string') {
             return this.log('could not find channel namespace and room name');
         }
         var ws = this
@@ -46,7 +46,7 @@
         if (!this.get('client')) {
             return this.log('could not find websocket client');
         }
-        if (typeof namespace !== 'string' || typeof room !== 'string) {
+        if (typeof namespace !== 'string' || typeof room !== 'string') {
             return this.log('could not find channel namespace and room name');
         }
         var ws = this
