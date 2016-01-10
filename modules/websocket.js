@@ -45,6 +45,7 @@
             ws.removeEventListener('close', this._onclose.bind(this));
             ws.removeEventListener('message', this._onmessage.bind(this));
             this.set('cid', 0);
+            this.set('callbacks', {});
             this.set('connected', false);
             this.set('listened', false);
             this.unset('ws');
@@ -99,14 +100,14 @@
 
     WebSocket.prototype.subscribe = function(namespace, room, callback) {
         var channel = this.channel(namespace, room, true);
-        if (channel) {
+        if (channel && !channel.subscribed()) {
             channel.subscribe(callback);
         }
     };
 
     WebSocket.prototype.unsubscribe = function(namespace, room, callback) {
         var channel = this.channel(namespace, room, true);
-        if (channel) {
+        if (channel && channel.subscribed()) {
             channel.unsubscribe(callback);
         }
     };
