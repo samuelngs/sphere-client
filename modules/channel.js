@@ -36,6 +36,7 @@
             packet.set('callback', function(response) {
                 callback.call(channel, response);
                 channel.emit('subscribed');
+                ws.emit('subscribed', channel);
             });
         }
         this.emit('subscribe');
@@ -60,6 +61,7 @@
             packet.set('callback', function(response) {
                 callback.call(channel, response);
                 channel.emit('unsubscribed');
+                ws.emit('unsubscribed', channel);
             });
         }
         this.emit('unsubscribe');
