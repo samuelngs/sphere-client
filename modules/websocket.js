@@ -75,7 +75,12 @@
         // creates packet
         var packet = new Sphere.Module.Packet();
         // parse data and return packet
-        packet.parse(msg);
+        packet.parse(msg.data || {});
+        // callback
+        if (packet.get('reply') === true && typeof this.get('callbacks')[packet.cid] === 'function') {
+            this.get('callbacks')[packet.cid].call(undefined, packet);
+            delete this.get('callbacks')[packet.cid];
+        }
         // receive event
         this.emit('message', packet);
     };
@@ -149,6 +154,16 @@
             }
         }
         return channels;
+    };
+
+    WebSocket.prototype.callback = function(packet) {
+        if (!(packet instanceof Sphere.Module.Packet)) {
+            return this.log('packet is invalid');
+        }
+        if (typeof packet.get('callback') !== 'function') {
+            return this.log('packet has no callback');
+        }
+        this.get('callbacks')[packet.cid] = packet.get('callback');
     };
 
     Sphere.Module.WebSocket = WebSocket;
