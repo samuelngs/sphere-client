@@ -11,6 +11,9 @@
         // data        | string/object
     };
 
+    Message.prototype = Object.create(Sphere.Core.Base.prototype);
+    Message.prototype.constructor = Message;
+
     Message.prototype.json = function(str) {
         var obj;
         switch(typeof str) {
