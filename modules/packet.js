@@ -17,6 +17,21 @@
         // callback    | function
     };
 
+    Packet.Type = {
+        Message      : 'message',
+        Channel      : 'channel',
+        Subscribe    : 'subscribe',
+        Unsubscribe  : 'unsubscribe',
+        Subscribed   : 'subscribed',
+        Unsubscribed : 'unsubscribed',
+        Ping         : 'ping',
+        Pong         : 'pong',
+        Unknown      : 'unknown'
+    };
+
+    Packet.prototype = Object.create(Sphere.Core.Base.prototype);
+    Packet.prototype.constructor = Packet;
+
     Packet.prototype.json = function(str) {
         var obj;
         switch(typeof str) {
