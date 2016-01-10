@@ -16,6 +16,7 @@ if ! which uglifyjs > /dev/null; then
 fi
 
 uglifyjs ./sphere.js \
+         ./vendor/eventemitter.js \
          ./core/base.js \
          ./modules/websocket.js \
          ./modules/packet.js \
