@@ -27,5 +27,6 @@ build/Release
 node_modules
 
 # Compiled javascript files
+sphere.js
 *.min.js
 *.min.js.map
