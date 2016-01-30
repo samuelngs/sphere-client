@@ -15,7 +15,15 @@ if ! which uglifyjs > /dev/null; then
     exit 1
 fi
 
-uglifyjs ./sphere.js \
+cat ./main.js \
+    ./vendor/eventemitter.js \
+    ./core/base.js \
+    ./modules/websocket.js \
+    ./modules/packet.js \
+    ./modules/message.js \
+    ./modules/channel.js > sphere.js
+
+uglifyjs ./main.js \
          ./vendor/eventemitter.js \
          ./core/base.js \
          ./modules/websocket.js \
