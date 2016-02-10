@@ -57,6 +57,11 @@ websocket.channel('namespace', 'room').send('event', 'data');
 
 ```
 
+## TODO
+
+- Rewrite library in Javascript ES6
+- Unit testing
+
 ## Contributing
 
 Everyone is encouraged to help improve this project. Here are a few ways you can help:
