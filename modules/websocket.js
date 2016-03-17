@@ -1,9 +1,14 @@
-;(function() {
+
+var Base = require('../core/base');
+var Packet = require('../modules/packet');
+var Channel = require('../modules/channel');
+
+module.exports = (function() {
 
     var global = this;
 
     var WebSocket = function WebSocket(url, options) {
-        Sphere.Core.Base.call(this, options);
+        Base.call(this, options);
         // props
         this.set('url', url);
         this.set('channels', {});
@@ -17,7 +22,7 @@
         this._keepalive();
     };
 
-    WebSocket.prototype = Object.create(Sphere.Core.Base.prototype);
+    WebSocket.prototype = Object.create(Base.prototype);
     WebSocket.prototype.constructor = WebSocket;
 
     WebSocket.prototype._keepalive = function() {
@@ -65,9 +70,14 @@
     WebSocket.prototype._onopen = function() {
         this.set('connected', true);
         this.emit('open');
+        // get authentication key
+        var accesskey;
+        if (typeof this.get('accesskey') === 'function') {
+          accesskey = this.get('accesskey')();
+        }
         // resubscribe all channels when connection is opened
         this.channels(false).map(function(channel) {
-            channel.subscribe();
+            channel.subscribe(accesskey);
         });
     };
 
@@ -82,11 +92,11 @@
 
     WebSocket.prototype._onmessage = function(msg) {
         // creates packet
-        var packet = new Sphere.Module.Packet();
+        var packet = new Packet();
         // parse data and return packet
         packet.parse(msg.data || {});
         // channel events
-        if (packet.get('type') === Sphere.Module.Packet.Type.Channel && packet.get('namespace') === 'string' && packet.get('room') === 'string') {
+        if (packet.get('type') === Packet.Type.Channel && packet.get('namespace') === 'string' && packet.get('room') === 'string') {
             var channel = this.channel(namespace, room, false);
             if (channel && channel.subscribed()) {
                 channel.emit(message, packet);
@@ -102,21 +112,24 @@
     };
 
     WebSocket.prototype.send = function(packet) {
-        if (!(packet instanceof Sphere.Module.Packet)) {
+        if (!(packet instanceof Packet)) {
             return this.log('packet is invalid');
         }
         packet.set('cid', this.get('cid'));
         if (typeof packet.get('callback') === 'function') {
-            ws.callback(packet);
+            this.callback(packet);
         }
         this.get('ws').send(packet.json());
         this.append('cid', 1);
     };
 
-    WebSocket.prototype.subscribe = function(namespace, room, callback) {
+    WebSocket.prototype.subscribe = function(namespace, room, accesskey, callback) {
         var channel = this.channel(namespace, room, true);
+        if (!accesskey && typeof this.get('accesskey') === 'function') {
+          accesskey = this.get('accesskey')();
+        }
         if (channel && !channel.subscribed()) {
-            channel.subscribe(callback);
+            channel.subscribe(accesskey, callback);
         }
     };
 
@@ -145,7 +158,7 @@
             channel = this.get('channels')[namespace][room];
         } else {
             if (autoCreate === true) {
-                channel = new Sphere.Module.Channel({
+                channel = new Channel({
                     client    : this,
                     namespace : namespace,
                     room      : room
@@ -163,10 +176,10 @@
             onlySubscribed = false;
         }
         for (var i = 0; i < namespaces.length; i++) {
-            var namespace = namespaces[i],
+            var namespace = this.get('channels')[namespaces[i]],
                 rooms     = Object.keys(namespace);
             for (var j = 0; j < rooms.length; j++) {
-                var channel = rooms[j];
+                var channel = namespace[rooms[j]];
                 if ((onlySubscribed && channel.subscribed()) || !onlySubscribed) {
                     channels.push(channel);
                 }
@@ -176,7 +189,7 @@
     };
 
     WebSocket.prototype.callback = function(packet) {
-        if (!(packet instanceof Sphere.Module.Packet)) {
+        if (!(packet instanceof Packet)) {
             return this.log('packet is invalid');
         }
         if (typeof packet.get('callback') !== 'function') {
@@ -185,7 +198,7 @@
         this.get('callbacks')[packet.cid] = packet.get('callback');
     };
 
-    Sphere.Module.WebSocket = WebSocket;
+    return WebSocket;
 
 }.call(this || window));
 

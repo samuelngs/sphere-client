@@ -1,9 +1,10 @@
-;(function() {
 
-    var global = this;
+var Base = require('../core/base');
+
+module.exports = (function() {
 
     var Message = function Message(options) {
-        Sphere.Core.Base.call(this, options);
+        Base.call(this, options);
         // -----------------------------
         // option      | type
         // -----------------------------
@@ -11,7 +12,7 @@
         // data        | string/object
     };
 
-    Message.prototype = Object.create(Sphere.Core.Base.prototype);
+    Message.prototype = Object.create(Base.prototype);
     Message.prototype.constructor = Message;
 
     Message.prototype.json = function(str) {
@@ -25,7 +26,13 @@
                 }
                 break;
             default:
-                obj = JSON.stringify(this.attributes);
+                var attrs = {};
+                for (var props in this.attributes) {
+                  if (!((props || '').indexOf('_') === 0)) {
+                    attrs[props] = this.attributes[props];
+                  }
+                }
+                obj = JSON.stringify(attrs);
                 break;
         }
         return obj;
@@ -36,12 +43,12 @@
         if (typeof obj === 'object' && typeof obj.message === 'string') {
             obj.message = this.json(obj.message);
         }
-        for (prop in obj) {
+        for (var prop in obj) {
             this.set(prop, obj[prop]);
         }
         return this;
     };
 
-    Sphere.Module.Message = Message;
+    return Message;
 
 }.call(this || window));

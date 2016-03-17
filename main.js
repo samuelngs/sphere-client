@@ -1,13 +1,3 @@
-;(function() {
+var WebSocket = require('./modules/websocket');
 
-    var global = this;
-
-    global.Sphere = {
-        Config: {},
-        Core: {},
-        Module: {}
-    };
-
-    global.Sphere.Version = '0.1.0';
-
-}.call(this || window));
+module.exports = WebSocket;

@@ -5,8 +5,7 @@
  * @preserve
  */
 
-;(function () {
-    'use strict';
+module.exports = (function () {
 
     /**
      * Class for managing events.
@@ -459,7 +458,6 @@
         return EventEmitter;
     };
 
-    // Expose the class either via AMD, CommonJS or the global object
-    this.EventEmitter = EventEmitter;
+    return EventEmitter;
 
 }.call(this || window));

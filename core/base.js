@@ -1,7 +1,9 @@
-;(function() {
+
+var EventEmitter = require('../vendor/eventemitter');
+
+module.exports = (function() {
 
     var Base = function Base(options) {
-        'use strict';
         EventEmitter.call(this);
         // Set options to an empty object if passed options is empty
         if (typeof options !== 'object') {
@@ -175,6 +177,6 @@
         }
     };
 
-    Sphere.Core.Base = Base;
+    return Base;
 
 }.call(this || window));
